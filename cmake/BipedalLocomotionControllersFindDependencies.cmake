@@ -117,3 +117,8 @@ endmacro()
 ################################################################################
 # Find all packages
 
+find_package(iDynTree QUIET)
+checkandset_dependency(iDynTree)
+
+BIPEDAL_LOCOMOTION_CONTROLLERS_dependent_option(BIPEDAL_LOCOMOTION_CONTROLLERS_COMPILE_OptimalControlUtilities "Compile OptimalControlUtilities library?" ON BIPEDAL_LOCOMOTION_CONTROLLERS_HAS_iDynTree OFF)
+
