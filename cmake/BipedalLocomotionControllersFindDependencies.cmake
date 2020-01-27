@@ -130,6 +130,10 @@ bipedal_locomotion_controllers_dependent_option(BIPEDAL_LOCOMOTION_CONTROLLERS_C
   "Compile YarpHelper library?" ON
   "BIPEDAL_LOCOMOTION_CONTROLLERS_HAS_YARP;BIPEDAL_LOCOMOTION_CONTROLLERS_HAS_iDynTree" OFF)
 
+bipedal_locomotion_controllers_dependent_option(BIPEDAL_LOCOMOTION_CONTROLLERS_COMPILE_ContactModels
+  "Compile ContactModels library?" ON
+  BIPEDAL_LOCOMOTION_CONTROLLERS_HAS_iDynTree OFF)
+
 bipedal_locomotion_controllers_dependent_option(BIPEDAL_LOCOMOTION_CONTROLLERS_COMPILE_OptimalControlUtilities
   "Compile OptimalControlUtilities library?" ON 
   BIPEDAL_LOCOMOTION_CONTROLLERS_HAS_iDynTree OFF)
