@@ -8,9 +8,13 @@
 #ifndef BIPEDAL_LOCOMOTION_CONTROLLERS_OPTIMAL_CONTROL_UTILITIES_FRAME_H
 #define BIPEDAL_LOCOMOTION_CONTROLLERS_OPTIMAL_CONTROL_UTILITIES_FRAME_H
 
+#include <memory>
+
 #include <iDynTree/Core/Utils.h>
 #include <iDynTree/Core/Wrench.h>
 #include <iDynTree/Model/Indices.h>
+
+#include <BipedalLocomotionControllers/ContactModels/ContactModel.h>
 
 namespace BipedalLocomotionControllers
 {
@@ -63,6 +67,18 @@ struct FrameInContact : public Frame
      * is modelled as a compliant contact */
     iDynTree::Wrench wrench{iDynTree::Wrench::Zero()};
 };
+
+/**
+ * FrameInContact describes a frame in contact with the environment
+ */
+struct FrameInCompliantContact : public Frame
+{
+    /** Pointer to a contact model */
+    std::shared_ptr<ContactModels::ContactModel> contactModel{nullptr};
+
+    bool isInContact{true}; /**< True if the frame is in Contact, false otherwise */
+};
+
 
 } // namespace OptimalControlUtilities
 } // namespace BipedalLocomotionControllers
