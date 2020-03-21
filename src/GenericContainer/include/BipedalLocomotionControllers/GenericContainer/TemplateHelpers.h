@@ -148,6 +148,14 @@ struct size_type<T, typename std::enable_if<is_size_available<T>::value>::type>
     using type = decltype(std::declval<T>().size());
 };
 
+
+template <typename T>
+struct is_string : public std::disjunction<std::is_same<char*, typename std::decay<T>::type>,
+                                           std::is_same<const char*, typename std::decay<T>::type>,
+                                           std::is_same<std::string, typename std::decay<T>::type>>
+{
+};
+
 }
 
 //Taken from https://stackoverflow.com/questions/81870/is-it-possible-to-print-a-variables-type-in-standard-c
