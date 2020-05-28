@@ -143,3 +143,7 @@ framework_dependent_option(FRAMEWORK_COMPILE_Estimators
 framework_dependent_option(FRAMEWORK_COMPILE_Planners
   "Compile Planners libraries?" ON
   "FRAMEWORK_HAS_Eigen3" OFF)
+
+framework_dependent_option(FRAMEWORK_COMPILE_System
+  "Compile Estimators library?" ON
+  "FRAMEWORK_HAS_Eigen3;FRAMEWORK_COMPILE_ContactModels" OFF)
