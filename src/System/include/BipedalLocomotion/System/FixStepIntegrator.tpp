@@ -41,7 +41,7 @@ bool FixStepIntegrator<DynamicalSystemDerived>::integrate(double initialTime, do
 
     typename DynamicalSystemDerived::StateType nextState;
     double currentTime = initialTime;
-    for (std::size_t i = 0; i < iterations - 1; i++)
+    for (int i = 0; i < iterations - 1; i++)
     {
         currentTime = initialTime + m_dT * i;
 

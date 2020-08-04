@@ -128,6 +128,9 @@ checkandset_dependency(YARP)
 find_package(Eigen3 3.2.92 QUIET)
 checkandset_dependency(Eigen3)
 
+find_package(OsqpEigen QUIET)
+checkandset_dependency(OsqpEigen)
+
 framework_dependent_option(FRAMEWORK_COMPILE_YarpUtilities
   "Compile YarpHelper library?" ON
   "FRAMEWORK_HAS_YARP" OFF)
@@ -145,5 +148,13 @@ framework_dependent_option(FRAMEWORK_COMPILE_Planners
   "FRAMEWORK_HAS_Eigen3" OFF)
 
 framework_dependent_option(FRAMEWORK_COMPILE_System
+  "Compile Estimators library?" ON
+  "FRAMEWORK_HAS_Eigen3;FRAMEWORK_COMPILE_ContactModels" OFF)
+
+framework_dependent_option(FRAMEWORK_COMPILE_ContactModels
+  "Compile Estimators library?" ON
+  "FRAMEWORK_HAS_Eigen3" OFF)
+
+framework_dependent_option(FRAMEWORK_COMPILE_Simulator
   "Compile Estimators library?" ON
   "FRAMEWORK_HAS_Eigen3;FRAMEWORK_COMPILE_ContactModels" OFF)

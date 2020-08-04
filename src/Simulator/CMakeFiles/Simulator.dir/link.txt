@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libBipedalLocomotionFrameworkSimulator.a  CMakeFiles/Simulator.dir/src/Simulator.cpp.o CMakeFiles/Simulator.dir/src/Visualizer.cpp.o
+/usr/bin/ranlib ../../lib/libBipedalLocomotionFrameworkSimulator.a

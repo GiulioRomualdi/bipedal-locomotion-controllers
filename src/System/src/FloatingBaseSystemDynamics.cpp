@@ -153,6 +153,9 @@ bool FloatingBaseDynamicalSystem::dynamics(const StateType& state,
     // add the joint torques to the known coefficent
     iDynTree::toEigen(m_knownCoefficent).tail(m_actuatedDoFs) += iDynTree::toEigen(jointTorques);
 
+    // // friction
+    // iDynTree::toEigen(m_knownCoefficent).tail(m_actuatedDoFs) -= 0.5*iDynTree::toEigen(jointVelocity);
+
     // resize the joint acceleration
     jointAcceleration.resize(m_actuatedDoFs);
 

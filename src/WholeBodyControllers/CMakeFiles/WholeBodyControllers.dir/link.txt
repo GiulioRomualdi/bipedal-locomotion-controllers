@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libBipedalLocomotionFrameworkWholeBodyControllers.a  CMakeFiles/WholeBodyControllers.dir/src/MomentumBasedControlHelper.cpp.o CMakeFiles/WholeBodyControllers.dir/src/MomentumBasedControl.cpp.o
+/usr/bin/ranlib ../../lib/libBipedalLocomotionFrameworkWholeBodyControllers.a
