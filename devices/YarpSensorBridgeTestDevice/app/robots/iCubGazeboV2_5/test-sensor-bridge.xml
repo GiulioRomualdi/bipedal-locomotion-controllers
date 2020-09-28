@@ -11,12 +11,12 @@ GNU Lesser General Public License v2.1 or any later version. -->
     <param name="joint_list">("neck_pitch", "neck_roll", "neck_yaw", "torso_pitch", "torso_roll", "torso_yaw", "l_shoulder_pitch", "l_shoulder_roll", "l_shoulder_yaw", "l_elbow", "r_shoulder_pitch", "r_shoulder_roll", "r_shoulder_yaw", "r_elbow", "l_hip_pitch", "l_hip_roll", "l_hip_yaw", "l_knee", "l_ankle_pitch", "l_ankle_roll", "r_hip_pitch", "r_hip_roll", "r_hip_yaw", "r_knee", "r_ankle_pitch", "r_ankle_roll")</param>
 
     <group name="RobotSensorBridge">
-        <param name="check_for_nan">0</param>
-        <param name="stream_joint_states">1</param>
-        <param name="stream_inertials">1</param>
-        <param name="stream_cartesian_wrenches">1</param>
-        <param name="stream_forcetorque_sensors">0</param>
-        <param name="stream_cameras">0</param>
+        <param name="check_for_nan">false</param>
+        <param name="stream_joint_states">true</param>
+        <param name="stream_inertials">true</param>
+        <param name="stream_cartesian_wrenches">true</param>
+        <param name="stream_forcetorque_sensors">false</param>
+        <param name="stream_cameras">false</param>
 
         <group name="RemoteControlBoardRemapper">
             <param name="joints_list">("neck_pitch", "neck_roll", "neck_yaw", "torso_pitch", "torso_roll", "torso_yaw", "l_shoulder_pitch", "l_shoulder_roll", "l_shoulder_yaw", "l_elbow", "r_shoulder_pitch", "r_shoulder_roll", "r_shoulder_yaw", "r_elbow", "l_hip_pitch", "l_hip_roll", "l_hip_yaw", "l_knee", "l_ankle_pitch", "l_ankle_roll", "r_hip_pitch", "r_hip_roll", "r_hip_yaw", "r_knee", "r_ankle_pitch", "r_ankle_roll")</param>
