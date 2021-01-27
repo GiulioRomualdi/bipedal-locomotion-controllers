@@ -53,14 +53,14 @@ bool Simulator::initialize(std::weak_ptr<ParametersHandler::IParametersHandler> 
     }
 
     // Initialize the left foot contact model
-    m_leftContact.model = std::make_shared<ContactModels::ContinuousContactModel>();
+    m_leftContact.model = std::make_shared<ContactModels::ContinuousContactModel>(true);
     if(!m_leftContact.model->initialize(handlerWeak))
     {
         std::cerr << "[Simulator::initialize] Unable to initialize the left foot contact model." << std::endl;
         return false;
     }
 
-    m_rightContact.model = std::make_unique<ContactModels::ContinuousContactModel>();
+    m_rightContact.model = std::make_unique<ContactModels::ContinuousContactModel>(true);
     if(!m_rightContact.model->initialize(handlerWeak))
     {
         std::cerr << "[Simulator::initialize] Unable to initialize the right foot contact model." << std::endl;
@@ -245,11 +245,21 @@ bool Simulator::reset(const iDynTree::VectorDynSize& initialJointValues,
     // todo probably can be moved from here
     m_leftContact.model->setNullForceTransform(m_leftContact.frameNullForce);
 
+    // test position Waring spring
+    const double left_springCoeff = m_springCoeff - 100000 * m_leftContact.frameNullForce.getPosition()(0);
+    std::cerr << "coeff left " << left_springCoeff << std::endl;
+    m_leftContact.model->springCoeff() = left_springCoeff;
+
     m_rightContact.model->setState(m_kinDyn->getFrameVel(m_rightContact.indexInTheModel),
                                    m_kinDyn->getWorldTransform(m_rightContact.indexInTheModel));
 
     // todo probably can be moved from here
     m_rightContact.model->setNullForceTransform(m_rightContact.frameNullForce);
+
+    // test position Waring spring
+    const double right_springCoeff = m_springCoeff - 100000 * m_rightContact.frameNullForce.getPosition()(0);
+    std::cerr << "coeff right " << right_springCoeff << std::endl;
+    m_rightContact.model->springCoeff() = right_springCoeff;
 
 
     std::cerr << "right " << m_kinDyn->getWorldTransform(m_rightContact.indexInTheModel).toString() << std::endl;
@@ -315,6 +325,30 @@ bool Simulator::advance(const double& time)
         return false;
     }
 
+    auto now = std::chrono::system_clock::now();
+    double diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_t0).count() / 1000.0;
+
+    std::cerr << diff << std::endl;
+
+    // const double right_springCoeff = m_springCoeff; // + 100000 * sin(2 * M_PI /100 * diff);
+    // const double left_springCoeff = m_springCoeff; // + 100000 * sin(2 * M_PI /100 *  diff);
+
+    // test position Waring springg
+    const double right_damperCoeff = m_damperCoeff - (m_damperCoeff - 2e3) * m_rightContact.frameNullForce.getPosition()(0);
+    const double right_springCoeff = m_springCoeff - (m_springCoeff - 5e5) * m_rightContact.frameNullForce.getPosition()(0);
+
+    std::cerr << "coeff right " << right_damperCoeff << std::endl;
+    m_rightContact.model->springCoeff() = right_springCoeff;
+    m_rightContact.model->damperCoeff() = right_damperCoeff;
+
+
+    const double left_damperCoeff = m_damperCoeff - (m_damperCoeff - 2e3) * m_leftContact.frameNullForce.getPosition()(0);
+    const double left_springCoeff = m_springCoeff  - (m_springCoeff - 5e5) * m_leftContact.frameNullForce.getPosition()(0);
+    std::cerr << "coeff left " << left_damperCoeff << std::endl;
+    m_leftContact.model->springCoeff() = left_springCoeff;
+    m_leftContact.model->damperCoeff() = left_damperCoeff;
+
+
     m_leftContact.model->setState(m_kinDyn->getFrameVel(m_leftContact.indexInTheModel),
                                   m_kinDyn->getWorldTransform(m_leftContact.indexInTheModel));
 
@@ -369,14 +403,24 @@ void Simulator::setRightFootNullForceTransform(const iDynTree::Transform& transf
     m_rightContact.model->setNullForceTransform(m_rightContact.frameNullForce);
 }
 
+
+const std::shared_ptr<const BipedalLocomotion::ContactModels::ContinuousContactModel> Simulator::leftContactModel() const
+{
+    return m_leftContact.model;
+}
+
+const std::shared_ptr<const BipedalLocomotion::ContactModels::ContinuousContactModel> Simulator::rightContactModel() const
+{
+    return m_rightContact.model;
+}
+
+
 iDynTree::Wrench Simulator::leftWrench()
 {
     if(!m_leftContact.isInContact)
         return iDynTree::Wrench::Zero();
 
     iDynTree::Wrench wrench = m_leftContact.model->getContactWrench();
-
-
 
     return wrench;
 }
@@ -386,7 +430,10 @@ iDynTree::Wrench Simulator::rightWrench()
     if(!m_rightContact.isInContact)
         return iDynTree::Wrench::Zero();
 
-    return m_rightContact.model->getContactWrench();
+    iDynTree::Wrench wrench = m_rightContact.model->getContactWrench();
+
+// -
+    return wrench;
 }
 
 void Simulator::setLeftFootState(bool isInContact)

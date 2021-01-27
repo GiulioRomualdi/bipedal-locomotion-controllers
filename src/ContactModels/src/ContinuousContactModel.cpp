@@ -13,12 +13,17 @@
 using namespace BipedalLocomotion::ContactModels;
 using namespace BipedalLocomotion::ParametersHandler;
 
-ContinuousContactModel::ContinuousContactModel()
+#include <chrono>
+
+
+ContinuousContactModel::ContinuousContactModel(bool addNoise)
 {
     m_controlMatrix.zero();
     m_autonomousDynamics.zero();
     m_regressor.resize(6, 2);
     m_regressor.zero();
+    m_addNoise = addNoise;
+
 }
 
 bool ContinuousContactModel::initializePrivate(std::weak_ptr<ParametersHandler::IParametersHandler> weakHandler)
@@ -78,7 +83,16 @@ void ContinuousContactModel::setStatePrivate(const iDynTree::Twist& twist,
 
 void ContinuousContactModel::computeContactWrench()
 {
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
     double area = m_length * m_width;
+
+    // auto now = std::chrono::system_clock::now();
+    // std::chrono::duration<double> diff = now - m_t0;
+
+    // const double springCoeff = m_springCoeff - 100000 * m_nullForceTransform.getPosition()(0);
+    // std::cerr << "coeff " << springCoeff << std::endl;
+
 
     auto force(iDynTree::toEigen(m_contactWrench.getLinearVec3()));
     auto torque(iDynTree::toEigen(m_contactWrench.getAngularVec3()));
@@ -97,15 +111,41 @@ void ContinuousContactModel::computeContactWrench()
                                                - m_damperCoeff * linearVelocity);
 
 
-            // compute the torque
-        auto skewRe1 = iDynTree::skew(rotation.col(0));
-        auto skewRe2 = iDynTree::skew(rotation.col(1));
-        torque = std::abs(rotation(2, 2)) * area / 12 * (m_length * m_length
-                                                         * (m_damperCoeff * skewRe1 * skewRe1 * angularVelocity
-                                                            + m_springCoeff * skewRe1 * nullForceRotation.col(0))
-                                                         + m_width * m_width
-                                                         * (m_damperCoeff * skewRe2 * skewRe2 * angularVelocity
-                                                            + m_springCoeff * skewRe2 * nullForceRotation.col(1)));
+    if(m_addNoise)
+    {
+
+        force(0) += m_distribution(m_generator);
+        force(1) += m_distribution(m_generator);
+        force(2) += m_distribution(m_generator);
+        if(force(2) < 0)
+            force(2) = 0;
+
+    }
+
+
+    // compute the torque
+    auto skewRe1 = iDynTree::skew(rotation.col(0));
+    auto skewRe2 = iDynTree::skew(rotation.col(1));
+    torque = std::abs(rotation(2, 2)) * area / 12 * (m_length * m_length
+                                                     * (m_damperCoeff * skewRe1 * skewRe1 * angularVelocity
+                                                        + m_springCoeff * skewRe1 * nullForceRotation.col(0))
+                                                     + m_width * m_width
+                                                     * (m_damperCoeff * skewRe2 * skewRe2 * angularVelocity
+                                                        + m_springCoeff * skewRe2 * nullForceRotation.col(1)));
+
+
+    if(m_addNoise)
+    {
+        torque(0) += m_distribution(m_generator) / 10;
+        torque(1) +=  m_distribution(m_generator) /10;
+        torque(2) +=  m_distribution(m_generator)/10;
+    }
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+
+
 }
 
 void ContinuousContactModel::computeAutonomousDynamics()

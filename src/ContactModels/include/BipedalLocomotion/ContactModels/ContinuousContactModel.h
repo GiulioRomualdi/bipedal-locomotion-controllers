@@ -14,6 +14,8 @@
 
 #include <BipedalLocomotion/ContactModels/ContactModel.h>
 #include <BipedalLocomotion/ParametersHandler/IParametersHandler.h>
+#include <random>
+#include <chrono>
 
 namespace BipedalLocomotion
 {
@@ -50,6 +52,12 @@ class ContinuousContactModel final : public ContactModel
 
     double m_length{0.0}; /**< Length of the rectangular contact surface */
     double m_width{0.0}; /**< Width of the rectangular contact surface */
+
+    bool m_addNoise;
+    std::default_random_engine m_generator{42};
+    std::normal_distribution<double> m_distribution{0.0, 2.0};
+    decltype(std::chrono::system_clock::now()) m_t0{std::chrono::system_clock::now()};
+
 
     /**
      * Evaluate the contact wrench given a specific contact model
@@ -105,7 +113,7 @@ public:
     /**
      * Constructor
      */
-    ContinuousContactModel();
+    ContinuousContactModel(bool addNoise = false);
 
     /**
      * Compute the contact force applied by the environment on the system in a particular point of

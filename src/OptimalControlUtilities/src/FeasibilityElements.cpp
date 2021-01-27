@@ -42,13 +42,42 @@ JointValuesFeasibilityElement::JointValuesFeasibilityElement(std::shared_ptr<iDy
                                  m_jointAccelerationIndex.size,
                                  m_jointAccelerationIndex.size)
         = Eigen::MatrixXd::Identity(m_jointAccelerationIndex.size, m_jointAccelerationIndex.size)
-          * std::pow(samplingTime, 2) / 2;
+          * samplingTime * samplingTime / 2;
 
     m_l.resize(m_jointAccelerationIndex.size);
     m_u.resize(m_jointAccelerationIndex.size);
 
     m_jointPositions.resize(m_jointAccelerationIndex.size);
     m_jointVelocities.resize(m_jointAccelerationIndex.size);
+
+    std::cerr << "A =[" << m_A.toString() << "];" << std::endl;
+
+
+    //TODO to be changed to +_ infinity
+    //default: no limits
+    m_minJointPositionsLimit.resize(kinDyn->model().getNrOfDOFs());
+    iDynTree::toEigen(m_minJointPositionsLimit).setConstant(-2e+19);
+    m_maxJointPositionsLimit.resize(kinDyn->model().getNrOfDOFs());
+    iDynTree::toEigen(m_maxJointPositionsLimit).setConstant(2e+19);
+
+    //for each joint, ask the limits
+    for (iDynTree::JointIndex jointIdx = 0; jointIdx < kinDyn->model().getNrOfJoints(); ++jointIdx) {
+        iDynTree::IJointConstPtr joint = kinDyn->model().getJoint(jointIdx);
+            //if the joint does not have limits skip it
+            if (!joint->hasPosLimits())
+                continue;
+            //for each DoF modelled by the joint get the limits
+            for (unsigned dof = 0; dof < joint->getNrOfDOFs(); ++dof) {
+                if (!joint->getPosLimits(dof,
+                                         m_minJointPositionsLimit(joint->getDOFsOffset() + dof),
+                                         m_maxJointPositionsLimit(joint->getDOFsOffset() + dof)))
+                    continue;
+            }
+    }
+
+    std::cerr << "lower = [" << m_minJointPositionsLimit.toString() << "];" << std::endl;
+    std::cerr << "upper = [" << m_maxJointPositionsLimit.toString() << "];" << std::endl;
+
 }
 
 const iDynTree::VectorDynSize& JointValuesFeasibilityElement::getUpperBound()
@@ -59,6 +88,8 @@ const iDynTree::VectorDynSize& JointValuesFeasibilityElement::getUpperBound()
     iDynTree::toEigen(m_u) = iDynTree::toEigen(m_maxJointPositionsLimit)
                              - iDynTree::toEigen(m_jointPositions)
                              - iDynTree::toEigen(m_jointVelocities) * m_samplingTime;
+
+
 
     return m_u;
 }

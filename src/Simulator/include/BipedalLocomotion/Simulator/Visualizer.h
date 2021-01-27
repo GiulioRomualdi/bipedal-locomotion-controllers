@@ -30,6 +30,8 @@ public:
 
     bool addModel(const iDynTree::Model& model, const std::string& modelName);
 
+    bool addPlane(const iDynTree::Model& model, const std::string& modelName);
+
     bool visualizeState(const iDynTree::Transform& world_T_Base,
                         const iDynTree::VectorDynSize& jointsPosition,
                         const std::vector<std::pair<iDynTree::Transform, iDynTree::Wrench>>& contactWrenches);

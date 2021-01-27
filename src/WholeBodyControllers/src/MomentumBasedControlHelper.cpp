@@ -929,7 +929,7 @@ void MomentumBasedControlHelper::initialzeSolver()
     m_solver->settings()->setVerbosity(false);
     m_solver->settings()->setLinearSystemSolver(0);
     m_solver->settings()->setMaxIteraction(100000);
-    m_solver->settings()->setPolish(false);
+    m_solver->settings()->setPolish(true);
 };
 
 bool MomentumBasedControlHelper::solve()
@@ -953,6 +953,8 @@ bool MomentumBasedControlHelper::solve()
         {
             std::cerr << "[MomentumBasedControlHelper::solve] Unable to update the hessian"
                       << std::endl;
+
+            std::cerr  << "hessian = [" << costElements.hessian().toString() << "];" << std::endl;
             return false;
         }
 

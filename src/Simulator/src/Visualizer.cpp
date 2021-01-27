@@ -32,13 +32,15 @@ Visualizer::Visualizer()
     iDynTree::VisualizerOptions options;
     options.winWidth = 1920;
     options.winHeight = 1080;
+    // options.winWidth = 780;
+    // options.winHeight = 460;
     m_pimpl->viz.init(options);
     m_pimpl->defaultCameraPosition = iDynTree::Position(1.6, 0.8, 0.8);
     m_pimpl->defaultCameraTarget = iDynTree::Position(0.4, 0.0, 0.5);
     m_pimpl->viz.camera().setPosition(m_pimpl->defaultCameraPosition);
     m_pimpl->viz.camera().setTarget(m_pimpl->defaultCameraTarget);
     double sqrt2 = std::sqrt(2.0);
-    setLightDirection(iDynTree::Direction(-0.5 / sqrt2, 0, -0.5 / sqrt2));
+    setLightDirection(iDynTree::Direction(-0.5 / sqrt2, -0.5 / sqrt2, -1 / sqrt2));
     m_pimpl->viz.vectors().setVectorsAspect(0.01, 0.0, 0.01);
 }
 
@@ -46,7 +48,24 @@ bool Visualizer::addModel(const iDynTree::Model& model, const std::string& model
 {
     std::cerr << "ciaoooooooooooooooooooooooooooooooooooooooooooooooooo" << std::endl;
     return m_pimpl->viz.addModel(model, modelName);
+    m_pimpl->viz.modelViz(0).setModelColor(iDynTree::ColorViz(1,0,0,1));
 }
+
+bool Visualizer::addPlane(const iDynTree::Model& model, const std::string& modelName)
+{
+    std::cerr << "ciaoooooooooooooooooooooooooooooooooooooooooooooooooo plane" << std::endl;
+    m_pimpl->viz.addModel(model, modelName);
+
+    iDynTree::Transform transform = iDynTree::Transform::Identity();
+    iDynTree::Position pos(-0.0, 0, -0.05);
+    transform.setPosition(pos);
+    m_pimpl->viz.modelViz(1).setPositions(transform, iDynTree::VectorDynSize());
+
+    m_pimpl->viz.modelViz(1).setFeatureVisibility("transparent", true);
+    // m_pimpl->viz.modelViz(0).setFeatureVisibility("transparent", true);
+    return true;
+}
+
 
 Visualizer::~Visualizer()
 {
@@ -81,6 +100,23 @@ bool Visualizer::visualizeState(const iDynTree::Transform& world_H_base,
             forcesViz.updateVector(vectorIndex, contatWrench.first.getPosition(), scaledForces);
         else
             forcesViz.addVector(contatWrench.first.getPosition(), scaledForces);
+
+
+        // TODO
+        // FROM 253.0/255.0, 10.0/255.0, 2.0/255.0, 1.0)
+        // TO 66.0/255.0, 133.0/255.0, 244.0/255.0, 1.0)
+        // 52, 168, 83
+        iDynTree::ColorViz color;
+        color.r =10.0 / 255.0 + contatWrench.first.getPosition()(0) * (255.0 - 10.0 ) / (255.0 * 1.0);
+        color.g = 250.0 / 255.0 + contatWrench.first.getPosition()(0) * (10.0 - 250.0 ) / (255.0 * 1.0);
+
+        color.b = 63.0 / 255.0 + contatWrench.first.getPosition()(0) * (2.0 - 63.0 ) / (255.0 * 1.0);
+//        color.r = 255.0 / 255.0 * (1 - contatWrench.first.getPosition()(0))  + contatWrench.first.getPosition()(0) * 200.0/255.0;
+//        color.g = 10.0 / 255.0 *  (1 - contatWrench.first.getPosition()(0))  + contatWrench.first.getPosition()(0) * 200.0 /255.0;
+//        color.b = 2.0 / 255.0 * (1 - contatWrench.first.getPosition()(0)) + contatWrench.first.getPosition()(0) * 200.0/255.0;
+
+        forcesViz.setVectorColor(vectorIndex, color);
+
         vectorIndex++;
     }
 
@@ -114,6 +150,9 @@ bool Visualizer::setCameraTarget(const iDynTree::Position& cameraTarget)
 bool Visualizer::setLightDirection(const iDynTree::Direction& lightDirection)
 {
     m_pimpl->viz.enviroment().lightViz("sun").setDirection(lightDirection);
+    m_pimpl->viz.enviroment().setElementVisibility("root_frame",false);
+
+    m_pimpl->viz.enviroment().setBackgroundColor(iDynTree::ColorViz(108.0/255.0, 163.0/255.0, 217.0/255.0, 1));
 
     return true;
 }

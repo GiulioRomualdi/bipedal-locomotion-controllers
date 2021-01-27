@@ -20,6 +20,9 @@
 #include <BipedalLocomotion/System/ForwardEuler.h>
 #include <BipedalLocomotion/System/FloatingBaseSystemDynamics.h>
 
+#include <random>
+
+
 namespace BipedalLocomotion
 {
 namespace Simulator
@@ -46,6 +49,7 @@ class Simulator
 
     std::size_t m_numberOfDoF;
     double m_dT;
+    decltype(std::chrono::system_clock::now()) m_t0{std::chrono::system_clock::now()};
 
     Contact m_leftContact;
     Contact m_rightContact;
@@ -82,6 +86,11 @@ public:
 
     iDynTree::Wrench leftWrench();
     iDynTree::Wrench rightWrench();
+
+    const std::shared_ptr<const BipedalLocomotion::ContactModels::ContinuousContactModel> leftContactModel() const;
+
+    const std::shared_ptr<const BipedalLocomotion::ContactModels::ContinuousContactModel> rightContactModel() const;
+
 
     const iDynTree::VectorDynSize& jointPositions() const;
     const iDynTree::VectorDynSize& jointVelocities() const;

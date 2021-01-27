@@ -73,7 +73,9 @@ bool RecursiveLeastSquare::initialize(std::weak_ptr<IParametersHandler> handlerW
     }
 
     m_stateCovarianceMatrix.resize(m_state.size(), m_state.size());
+    m_stateCovarianceMatrix0.resize(m_state.size(), m_state.size());
     iDynTree::toEigen(m_stateCovarianceMatrix) = iDynTree::toEigen(stateCovariance).asDiagonal();
+    iDynTree::toEigen(m_stateCovarianceMatrix0) = iDynTree::toEigen(stateCovariance).asDiagonal();
 
     // resize the vector containing the measuraments
     m_measurements.resize(measurementCovariance.size());
@@ -116,7 +118,7 @@ bool RecursiveLeastSquare::advance()
     if (m_estimatorState == State::Initialized)
         m_estimatorState = State::Running;
 
-    iDynTree::MatrixDynSize regressor = m_regressor();
+    iDynTree::MatrixDynSize regressor =  m_regressor();
     toEigen(m_kalmanGain) = toEigen(m_stateCovarianceMatrix) * toEigen(regressor).transpose()
                             * (m_lambda * toEigen(m_measurementCovarianceMatrix)
                                + (toEigen(regressor) * toEigen(m_stateCovarianceMatrix)
@@ -128,6 +130,8 @@ bool RecursiveLeastSquare::advance()
     toEigen(m_stateCovarianceMatrix) = (toEigen(m_stateCovarianceMatrix)
                                         - toEigen(m_kalmanGain) * toEigen(regressor)
                                         * toEigen(m_stateCovarianceMatrix)) / m_lambda;
+
+    std::cerr << "kalman gain = "<< m_kalmanGain.toString() << std::endl;
 
     return true;
 }
@@ -146,4 +150,10 @@ const iDynTree::VectorDynSize& RecursiveLeastSquare::parametersExpectedValue() c
 const iDynTree::MatrixDynSize& RecursiveLeastSquare::parametersCovarianceMatrix() const
 {
     return m_stateCovarianceMatrix;
+}
+
+void RecursiveLeastSquare::resetCovariance()
+{
+    m_stateCovarianceMatrix(0,0) = m_stateCovarianceMatrix0(0,0);
+    m_stateCovarianceMatrix(1,1) = m_stateCovarianceMatrix0(1,1);
 }

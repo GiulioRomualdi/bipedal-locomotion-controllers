@@ -32,6 +32,7 @@ class RecursiveLeastSquare
     iDynTree::VectorDynSize m_measurements; /**< Vector containing the measurements */
 
     iDynTree::MatrixDynSize m_stateCovarianceMatrix; /**< Covariance matrix of the state */
+    iDynTree::MatrixDynSize m_stateCovarianceMatrix0; /**< Covariance matrix of the state */
 
     /** Covariance matrix of the measurements we assume that the measurements are uncorrelated
      (furthermore since the model of the noise is Gaussian the random variable are also independent)
@@ -108,6 +109,8 @@ public:
      * @return covariance matrix
      */
     const iDynTree::MatrixDynSize& parametersCovarianceMatrix() const;
+
+    void resetCovariance();
 };
 } // namespace Estimators
 } // namespace BipedalLocomotion

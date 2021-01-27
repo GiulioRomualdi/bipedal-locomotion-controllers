@@ -228,6 +228,8 @@ CostFunction::Elements CostFunction::getElements()
         const iDynTree::MatrixDynSize& A = iter->second.element->getA();
         const iDynTree::VectorDynSize& b = iter->second.element->getB();
 
+        // std::cerr << iter->first << " " << A.toString() << std::endl;
+
         iDynTree::toEigen(m_hessianMatrix) = iDynTree::toEigen(A).transpose()
                                              * iDynTree::toEigen(iter->second.weight.getWeight()).asDiagonal()
                                              * iDynTree::toEigen(A);
@@ -252,7 +254,7 @@ CostFunction::Elements CostFunction::getElements()
                                              * iDynTree::toEigen(b);
 
             // if(iter->first == "centroidal_linear_momentum")
-            //     std::cerr << iter->first << " " << A.toString() << std::endl;
+                // std::cerr << iter->first << " " << A.toString() << std::endl;
         }
     }
     return CostFunction::Elements(m_hessianMatrix, m_gradient);
